@@ -1,23 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react';
+import axios from 'axios';
+
+const URL = 'http://hn.algolia.com/api/v1/search';
 
 function App() {
+  const [stories, setStories] = React.useState([]);
+  const [error, setError] = React.useState(null);
+
+  async function handleFetch(event) {
+    let result;
+
+    try {
+      result = await axios.get(`${URL}?query=React`);
+
+      setStories(result.data.hits);
+    } catch (error) {
+      setError(error);
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button type="button" onClick={handleFetch}>
+        Fetch Stories
+      </button>
+
+      {error && <span>Something went wrong ...</span>}
+
+      <ul>
+        {stories.map((story) => (
+          <li key={story.objectID}>
+            <a href={story.url}>{story.title}</a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
